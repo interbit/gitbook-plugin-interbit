@@ -22,6 +22,9 @@
     "nspell": "^2.0.1",
     "promisify-any": "^2.0.1"
   },
+  "engines": {
+    "gitbook": ">=3.0.0"
+  },
   "gitbook": {
     "properties": {
     }
