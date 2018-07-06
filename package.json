@@ -13,7 +13,7 @@
   "author": {
     "name": "Interbit"
   },
-  "main": "README.md",
+  "main": "index.js",
   "dependencies": {
     "ansi-escape-sequences": "^4.0.0",
     "bluebird": "^3.5.1",
