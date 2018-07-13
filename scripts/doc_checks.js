@@ -13,6 +13,7 @@ const color      = ansi.style
 const checkPath = path.join(__dirname, 'checks')
 const checks    = {}
 fs.readdirSync(checkPath).forEach((check) => {
+  if (!check.match(/\.js$/)) return
   checks[check] = require(path.join(checkPath, check))
 })
 
