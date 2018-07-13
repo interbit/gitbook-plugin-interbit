@@ -37,7 +37,7 @@ var find = /\.(md|adoc)/
 if ('f' in argv) find = new RegExp(argv['f'])
 if ('find' in argv) find = new RegExp(argv['find'])
 
-var skip = /(_book|node_modules)/
+var skip = /(_book|node_modules|vendor)/
 if ('s' in argv) skip = new RegExp(argv['s'])
 if ('skip' in argv) skip = new RegExp(argv['skip'])
 
