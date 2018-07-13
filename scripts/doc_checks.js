@@ -18,7 +18,7 @@ fs.readdirSync(checkPath).forEach((check) => {
 
 // process arguments
 var argv = require('minimist')(process.argv.slice(2))
-var docPath = path.join(__dirname, '..', 'gitbook')
+var docPath = path.join(process.cwd())
 if ('d' in argv) docPath = argv['d']
 if ('docPath' in argv) docPath = argv['docPath']
 
