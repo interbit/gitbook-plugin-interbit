@@ -1,5 +1,4 @@
-**/_book
-**/.lock
+node_modules
 
 # Vim ignores
 [._]*.s[a-v][a-z]
