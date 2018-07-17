@@ -9,7 +9,7 @@
     "dictionary",
     "hunspell"
   ],
-  "license": "CC BY-NC-ND 4.0",
+  "license": "CC-BY-NC-ND-4.0",
   "author": {
     "name": "Interbit"
   },
@@ -20,13 +20,18 @@
     "fs-extra-promise": "^1.0.1",
     "lodash": "^4.17.10",
     "nspell": "^2.0.1",
-    "promisify-any": "^2.0.1"
+    "promisify-any": "^2.0.1",
+    "minimist": "^1.2.0",
+    "walk-sync": "^0.3.2"
   },
   "engines": {
     "gitbook": ">=3.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https:///github.com/interbit/gitbook-plugin-interbit.git"
+  },
   "gitbook": {
-    "properties": {
-    }
+    "properties": {}
   }
 }
