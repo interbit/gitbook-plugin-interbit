@@ -1,0 +1,61 @@
+#!/usr/bin/env node
+
+// check for HTML tags
+const path    = require('path')
+const ansi    = require('ansi-escape-sequences')
+const color   = ansi.style
+const debug   = require('../_debug')
+const pattern = new RegExp(/(<\/?(p|code|div|span)[^>]*>)/, "g")
+
+// scan the lines in a file
+const scan = (lines) => {
+  var results = []
+
+  debug.PREFIX = 'HTML'
+
+  lines.map((line, index) => {
+
+    debug.out(`${index}: ${line}`)
+    if (line.match(pattern)) {
+      debug.out(`HTML found`)
+      var text = line.replace(pattern, (match, p1, offset, string) =>
+        `${color.red}${p1}${color.reset}`
+      )
+
+      results.push({ line: index + 1, text: text })
+    }
+  })
+
+  return results
+}
+
+// provide a report for any results found per file
+const report = (results) => {
+  var count = 0;
+  Object.keys(results).map((file, index) => {
+    count++
+    console.log(`${color.magenta}${file}${color.reset}`)
+    results[file].map((entry) => {
+      console.log(`${entry.line}: ${entry.text}`)
+    })
+  })
+
+  if (count) {
+    console.log('')
+    console.log("Remove the listed HTML tags; if necessary, convert to Asciidoc format!")
+  }
+}
+
+// Demonstrate this check during direct execution
+if (require.main === module) {
+  const entries = scan([
+    '<div><p><span>This contains HTML</span></p></div>',
+    'No HTML on this line',
+    '<p>HTML <span>HERE</span></p>'
+  ])
+  const results = {}
+  results[path.relative(process.cwd(), __filename)] = entries
+  report( results )
+}
+
+module.exports = { name: "HTML Tags", scan, report }
