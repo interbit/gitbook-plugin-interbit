@@ -1,18 +1,34 @@
 #!/usr/bin/env node
-// check repeated words
-// - walks the specified directory tree to find doc source files
-// - investigates the contents of each file for repeated words on a line
+// doc check runner
+// - scans all of the documentation source files
+// - applies each kind of "check" script to each source file
+// - reports any issues discovered
 
 const fs         = require('fs-extra-promise')
 const path       = require('path')
-const walk       = require('./_walk')
+const walk       = require('walk-sync')
 const ansi       = require('ansi-escape-sequences')
 const color      = ansi.style
 
-// load foc checks
+// load doc checks (only those with filenames ending in ".js", to make
+// it easy to disable select checks)
+//
+// each check script exports:
+// - scan(lines) -> results
+//   processes the passed lines array and returns an array of results
+//
+// - emit() -> bool
+//   Ask the check if it needs to report, even if there are no returned
+//   results.
+//
+// - report(results) -> void
+//   prints a report for the passed results
+//
+//-  setup(docPath) -> void
+//   Optional export: if exported, executed to prepare for scanning
 const checkPath = path.join(__dirname, 'checks')
 const checks    = {}
-fs.readdirSync(checkPath).forEach((check) => {
+fs.readdirSync(checkPath).sort().map((check) => {
   if (!check.match(/\.js$/)) return
   checks[check] = require(path.join(checkPath, check))
 })
@@ -37,67 +53,76 @@ var find = /\.(md|adoc)/
 if ('f' in argv) find = new RegExp(argv['f'])
 if ('find' in argv) find = new RegExp(argv['find'])
 
-var skip = /(_book|node_modules|vendor)/
-if ('s' in argv) skip = new RegExp(argv['s'])
-if ('skip' in argv) skip = new RegExp(argv['skip'])
-
 const debug = require('./_debug')
 if ('v' in argv) debug.DEBUG = true
 if ('verbose' in argv) debug.DEBUG = true
 
-var results = {}
+// assume success
 var problems = false
 
-console.log(`${color.bold}Checking doc content...${color.reset}`)
+// allows logging without implicit line breaks
+const print = (msg) => { process.stdout.write(msg) }
 
-walk(docPath,
-  {
-    filterFiles: find,
-    filterFolders: /^[^\.]/,
-    skip: skip,
-    recurse: true,
-    "return": true
+print(`${color.bold}Checking doc content...${color.reset}\n`)
+
+// scan the directory tree for doc source files
+const files = walk(docPath, {
+  directories: false,
+  globs: [ "**/*.md", "**/*.adoc" ],
+  ignore: [ "_book", "node_modules", "vendor" ]
+}).sort()
+
+// run all of the checks
+Object.keys(checks).map((check) => {
+  var results = {}
+  debug.PREFIX = 'DC'
+  print(`Checking for ${color.bold}${checks[check].name}${color.reset}...`)
+  if (checks[check].setup
+    && typeof checks[check].setup === "function") {
+    debug.out(`Running setup for ${check}`)
+    checks[check].setup(docPath)
   }
-)
-.then((files) => {
-  files.map((file) => {
-    if (file.directory) return
+  else {
+    debug.out(`No setup function provided by ${check}; skipping...`)
+  }
 
-    const relPath = path.relative(process.cwd(), file.fullPath)
+  // process each file
+  files.map((path) => {
     debug.PREFIX = 'DC'
-    debug.out(`Processing file: ${file.fullPath}`)
-    var lines = fs.readFileSync(file.fullPath, { encoding: 'utf8' })
+    debug.out(`Processing file: ${path}`)
+
+    var lines = fs.readFileSync(path, { encoding: 'utf8' })
       .split(/\r?\n/)
-    Object.keys(checks).map((check) => {
-      result = checks[check].scan(lines)
-      if (result.length) {
-        if (!results[check]) results[check] = {}
-        results[check][relPath] = result
-        problems = true
-      }
-    })
-  })
-})
-.catch((err) => {
-  console.log("Caught an error! ", err)
-})
-.finally(() => {
-  Object.keys(checks).map((check, index) => {
-    console.log(`${color.bold}Checking for ${checks[check].name}...${color.reset}`)
-    if (results[check] && Object.keys(results[check]).length) {
-      checks[check].report(results[check])
+
+    // scan the lines with the current check
+    var result = checks[check].scan(lines, path)
+    if (result.length) {
+      results[path] = result
+      problems = true
     }
-    else {
-      console.log(`${color.green}${color.bold}No ${checks[check].name} problems found!${color.reset}`)
-    }
-    console.log('')
   })
 
-  console.log(`${color.bold}Checks complete`)
-  if (problems) {
-    console.log(`${color.red}Problems detected! Aborting.${color.reset}`)
-    process.exit(1)
+  var always = false;
+  if (checks[check].emit
+    && typeof checks[check].emit === "function") {
+    debug.out(`Asking check ${check} whether to emit...`)
+    always = checks[check].emit()
   }
-  console.log(`${color.green}No problems detected!${color.reset}`)
+
+  // Indicate whether problems were found
+  if (Object.keys(results).length || always) {
+    print(` ${color.red}Error(s)!${color.reset}\n`)
+    checks[check].report(results)
+    print(`\n`)
+  }
+  else {
+    print(` ${color.green}OK!${color.reset}\n`)
+  }
 })
 
+// successful run, or not?
+if (problems) {
+  print(`${color.red}Errors detected! Aborting.${color.reset}\n`)
+  process.exit(1)
+}
+print(`${color.bold}Doc checks completed ${color.green}successfully!${color.reset}\n`)
