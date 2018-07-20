@@ -134,6 +134,13 @@ const report = (results) => {
       label = indentf
     })
   })
+
+  if (maxw) {
+    console.log('')
+    console.log("To correct the above misspellings, either:")
+    console.log("a) edit the associated source file to fix the typo")
+    console.log("b) update the dictionary to include new terminology")
+  }
 }
 
 // Demonstrate this check during direct execution
@@ -149,4 +156,4 @@ if (require.main === module) {
   report( results )
 }
 
-module.exports = { name: "spelling", scan, report }
+module.exports = { name: "Spelling", scan, report }
