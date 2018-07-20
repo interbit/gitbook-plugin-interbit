@@ -152,12 +152,18 @@ const scan = (lines) => {
 
 // provide a report for any results found per file
 const report = (results) => {
+  var count = 0;
   Object.keys(results).map((file) => {
+    count++
     console.log(`${color.magenta}${file}${color.reset}`)
     results[file].map((entry) => {
       console.log(`${entry.line}: ${entry.chars}/${maxLength}`)
     })
   })
+  if (count) {
+    console.log('')
+    console.log("Wrap the identified lines to fit within 80 columns.")
+  }
 }
 
 // Demonstrate this check during direct execution
@@ -179,4 +185,4 @@ if (require.main === module) {
   report( results )
 }
 
-module.exports = { name: "line lengths", scan, report }
+module.exports = { name: "Line Lengths", scan, report }
