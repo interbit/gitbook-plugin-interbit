@@ -10,21 +10,45 @@ const pattern = new RegExp(/(\b\S+\b)\s+(\b\1\b(?!-))/, "g")
 // scan the lines in a file
 const scan = (lines) => {
   var results = []
-  var counter = 0
 
   debug.PREFIX = 'RW'
 
-  lines.forEach((line) => {
-    counter++
+  lines.map((line, index) => {
 
-    debug.out(`${counter}: ${line}`)
+    debug.out(`${index + 1}: ${line}`)
     if (line.match(pattern)) {
       debug.out(`Repeated word found`)
       var text = line.replace(pattern, (match, p1, p2, offset, string) =>
-        `${p1} ${ansi.style.red}${p2}${ansi.style.reset}`
+        `${p1} ${color.red}${p2}${color.reset}`
       )
 
-      results.push({ line: counter, text: text })
+      results.push({ line: index + 1, text: text })
+    }
+
+    if (index < lines.length - 1) {
+      debug.out(`Checking for line-spanning repeats:\n${line}`)
+      var mg
+      var last = ''
+      if (mg = line.match(/\s+(\S+)\s*$/)) last = mg[1]
+      debug.out(`LW: ${last}`)
+      if (!last.match(/[A-Za-z0-9]/)) last = ''
+
+      var first = ''
+      if (mg = lines[index + 1].match(/^\s*(\S+)/)) first = mg[1]
+      debug.out(`FW: ${first}`)
+      if (!first.match(/[A-Za-z0-9]/)) first = ''
+
+      if (last.length && first.length && last == first) {
+        debug.out(`Repeated word spanning lines found`)
+        var text = line.replace(/\s+(\S+)\s*$/, (match, p1) =>
+          ` ${color.red}${p1}${color.reset}\n`
+        )
+        text += lines[index + 1].replace(/^\s*(\S+)/, (match, p1) =>
+          `${color.red}${p1}${color.reset}`
+        )
+
+        results.push({ line: index + 1, text: text })
+      }
     }
   })
 
@@ -33,24 +57,34 @@ const scan = (lines) => {
 
 // provide a report for any results found per file
 const report = (results) => {
+  var count = 0;
   Object.keys(results).map((file) => {
-    console.log(`${ansi.style.magenta}${file}${ansi.style.reset}`)
+    count++
+    console.log(`${color.magenta}${file}${color.reset}`)
     results[file].map((entry) => {
       console.log(`${entry.line}: ${entry.text}`)
     })
   })
+
+  if (count) {
+    console.log('')
+    console.log("Fix the listed repeated words!")
+  }
 }
 
 // Demonstrate this check during direct execution
 if (require.main === module) {
+  debug.DEBUG = true
   const entries = scan([
     'This is a test test of dupe dupe words',
     'No repeats on this line',
-    'One-one two two'
+    'One-one two two',
+    'No repeat on this line, but last word',
+    'word repeats onto this line'
   ])
   const results = {}
   results[path.relative(process.cwd(), __filename)] = entries
   report( results )
 }
 
-module.exports = { name: "repeated words", scan, report }
+module.exports = { name: "Repeated Words", scan, report }
