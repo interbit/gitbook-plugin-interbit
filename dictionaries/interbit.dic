@@ -201,7 +201,6 @@ eventOccurred
 facebookincubator
 fetchRandom
 filepath
-FIXME
 fromStoreRoot
 gKu
 generateKeyPair
@@ -320,6 +319,7 @@ nextState
 npm
 npmjs
 OAuth
+OAUTH
 ok
 onChange
 onClick
