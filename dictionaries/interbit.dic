@@ -1,4 +1,4 @@
-444
+445
 1a
 1b
 ACL/S
@@ -398,6 +398,7 @@ setBlockMaster
 setIn
 setSelectedChain
 setState
+sharedProfile
 shiftRedispatchQueue
 shiftedRedispatchQueue
 signaturesHash
