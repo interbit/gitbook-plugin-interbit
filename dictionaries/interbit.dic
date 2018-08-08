@@ -1,4 +1,4 @@
-446
+447
 1a
 1b
 ACL/S
@@ -154,6 +154,7 @@ consumeAction
 consumeStateAction
 containerId
 contentHash
+controlActionTypes
 coreCovenant
 counterparty
 covenantAlias
