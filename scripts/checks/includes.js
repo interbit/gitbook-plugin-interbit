@@ -27,7 +27,7 @@ const setup = (folder) => {
       "**/*.jsx"
     ],
     ignore: [
-      "_book", "node_modules", "vendor",
+      "_*", "node_modules", "vendor",
       "index.js", "local.js",
       "package.json", "package-lock.json",
       "app.json", "book.json"

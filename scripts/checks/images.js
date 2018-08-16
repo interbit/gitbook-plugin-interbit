@@ -26,7 +26,7 @@ const setup = (folder) => {
       "**/*.png",
       "**/*.svg"
     ],
-    ignore: [ "_book", "node_modules", "vendor" ]
+    ignore: [ "_*", "node_modules", "vendor" ]
   }).map((imgFile) => {
     images[imgFile] = false
   })

@@ -49,6 +49,10 @@ if (!fs.statSync(docPath).isDirectory()) {
   process.exit(1)
 }
 
+var chk = 'ALL'
+if ('c' in argv) chk = argv['c']
+if ('check' in argv) chk = argv['check']
+
 var find = /\.(md|adoc)/
 if ('f' in argv) find = new RegExp(argv['f'])
 if ('find' in argv) find = new RegExp(argv['find'])
@@ -69,11 +73,16 @@ print(`${color.bold}Checking doc content...${color.reset}\n`)
 const files = walk(docPath, {
   directories: false,
   globs: [ "**/*.md", "**/*.adoc" ],
-  ignore: [ "_book", "node_modules", "vendor" ]
+  ignore: [ "_*", "node_modules", "vendor" ]
 }).sort()
 
 // run all of the checks
 Object.keys(checks).map((check) => {
+  if (chk != 'ALL') {
+    var re = RegExp(chk + '\(\.js\)\?');
+    if (!check.match(re)) return
+  }
+
   var results = {}
   debug.PREFIX = 'DC'
   print(`Checking for ${color.bold}${checks[check].name}${color.reset}...`)
