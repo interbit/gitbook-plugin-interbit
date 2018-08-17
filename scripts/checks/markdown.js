@@ -37,7 +37,7 @@ const setup = (folder) => {
     .split(/\r?\n/)
 
     lines.map((line, index) => {
-      debug.out(`${index}: ${line}`)
+      debug.out(`${index + 1}: ${line}`)
       if (line.match(pattern)) {
         debug.out(`Markdown found`)
         markdown = true

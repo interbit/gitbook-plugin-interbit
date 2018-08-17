@@ -133,7 +133,7 @@ const scan = (lines, docFile) => {
           if (diffv !== 0) wrong = true
           if (wrong) {
             results.push({
-              line:     index,
+              line:     index + 1,
               file:     filename,
               sw:       width,
               sh:       height,
@@ -148,7 +148,7 @@ const scan = (lines, docFile) => {
     else {
       debug.out(`Cannot find image in doc tree: --${imgPath}==`)
       results.push({
-        line:     index,
+        line:     index + 1,
         file:     filename,
         missing:  true
       })

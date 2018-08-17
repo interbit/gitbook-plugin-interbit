@@ -15,7 +15,7 @@ const scan = (lines) => {
 
   lines.map((line, index) => {
 
-    debug.out(`${index}: ${line}`)
+    debug.out(`${index + 1}: ${line}`)
     if (line.match(pattern)) {
       debug.out(`HTML found`)
       var text = line.replace(pattern, (match, p1, offset, string) =>

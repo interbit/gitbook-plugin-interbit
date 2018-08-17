@@ -71,7 +71,7 @@ const scan = (lines, docFile) => {
       else {
         debug.out(`Cannot find include in doc tree: --${incPath}==`)
         results.push({
-          line:     index,
+          line:     index + 1,
           file:     filename,
         })
       }
