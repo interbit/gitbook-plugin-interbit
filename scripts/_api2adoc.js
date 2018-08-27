@@ -7,7 +7,7 @@ const rFunction = (item, mode = module.exports.STYLE) => {
 
   var async = ('async' in item && item.async) ? 'async ' : ''
 
-  output += `## [.signature]__${async}\`${item.name}(`
+  output += `## [.signature]\`${async}${item.name}(`
   if (item.params.length) {
     var sep = ''
     item.params.forEach((param) => {
@@ -15,7 +15,7 @@ const rFunction = (item, mode = module.exports.STYLE) => {
       sep = ', '
     })
   }
-  output += ")`__\n\n"
+  output += ")`\n\n"
   output += `${item.description}` + "\n\n"
 
   if ('params' in item && item.params.length) {
