@@ -7,7 +7,7 @@ const rFunction = (item, mode = module.exports.STYLE) => {
 
   var async = ('async' in item && item.async) ? 'async ' : ''
 
-  output += `## [.signature]${async}\`${item.name}(`
+  output += `## [.signature]__${async}\`${item.name}(`
   if (item.params.length) {
     var sep = ''
     item.params.forEach((param) => {
@@ -15,7 +15,7 @@ const rFunction = (item, mode = module.exports.STYLE) => {
       sep = ', '
     })
   }
-  output += ")`\n\n"
+  output += ")`__\n\n"
   output += `${item.description}` + "\n\n"
 
   if ('params' in item && item.params.length) {
@@ -116,9 +116,18 @@ const rParam = (param, mode = module.exports.STYLE, requiredCol = false, default
   if (opt) reqopt = "optional"
 
   if (mode == 'short') {
-    var rs = (req) ? "**" : ''
-    var ds = (def) ? `=${param.defaultvalue}` : ''
-    output += (opt) ? `[${rs}${name}${rs}${ds}]` : `${rs}${name}${rs}${ds}`
+    var ss = es = ''
+    if (req) {
+      ss = "[.required]**"
+      es = "**";
+    }
+    if (opt) {
+      ss = "<" + ss
+      es += ">"
+    }
+
+    var ds = (def) ? `=[.default]__${param.defaultvalue}__` : ''
+    output += `${ss}${name}${es}${ds}`
   }
   else if (mode == 'table') {
     output += `| **${name}**` + "\n"
