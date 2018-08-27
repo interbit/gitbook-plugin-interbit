@@ -197,7 +197,7 @@ const repeat = (str, count, sep = ',') => {
 
   var div = ''
   for (var i = 0; i < count; i++) {
-    output += `${sep}${str}`
+    output += `${div}${str}`
     div = sep
   }
 
