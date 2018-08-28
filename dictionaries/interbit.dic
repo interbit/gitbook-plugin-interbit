@@ -1,4 +1,4 @@
-458
+480
 1a
 1b
 ACL/S
@@ -72,6 +72,7 @@ anotherAction
 api
 apiadoc
 appChain
+appName
 appState
 applicationState
 applyMiddleware
@@ -100,6 +101,7 @@ blockheaders
 blockheight
 blockmaster
 bool
+boolean
 bootChain
 browserChain/S
 btn
@@ -152,6 +154,9 @@ config
 configChange/SD
 configFilePath
 configSelectors
+configureChain/S
+configureJoin/S
+connectToPeer/S
 const
 consumeAction
 consumeStateAction
@@ -161,6 +166,7 @@ controlActionTypes
 coreCovenant
 counterparty
 covenantAlias
+covenantConfig
 covenantConfiguration
 covenantHash/S
 covenantName
@@ -187,6 +193,7 @@ cwd
 dateStr
 datetime
 dbPath
+deployCovenant/S
 destroyAction
 destroyChain
 dev
@@ -211,11 +218,14 @@ eventOccurred
 facebookincubator
 fetchRandom
 filepath
+filesystem
 formatDate
 formatDateTime
 fromStoreRoot
 gKu
+generateDeploymentDetails
 generateKeyPair
+generateManifest
 genesisBlock/S
 genesisConfig
 genesisConfigBuilder
@@ -234,6 +244,7 @@ getChainIdByAlias
 getChainJoin/S
 getChainState
 getChainValidator/S
+getConfig
 getConfigFromStaticHtml
 getConfiguredChains
 getConfiguredPeers
@@ -278,7 +289,9 @@ initBaseChain
 initialState
 interbit
 interbitAtRoot
+interbitConfig
 interbitGlobals
+interbitManifest
 interbitManifestFile
 interbitMiddleware
 interbitReducer
@@ -292,6 +305,7 @@ isDevModeEnabled
 isPublicChainLoaded
 isWatchModeEnabled
 jB
+joinChain/S
 joinName
 joinType/S
 jointype/S
@@ -314,9 +328,11 @@ localhost
 loweralpha
 manifestFilePath
 manifestLocation
+manifestPeer/S
 manifestSelectors
 mapDispatchToProps
 mapStateToProps
+maxRetries
 md
 mdash
 mergeCovenants
@@ -331,6 +347,7 @@ nVersion
 nbsp
 newState
 nextState
+noWatch
 npm
 npmjs
 oauth
@@ -340,9 +357,11 @@ onClick
 orderBook
 orderId
 orderbook/S
+originalManifest
 otherPublicKey
 outputDir
 ownProps
+packCovenant/S
 padb
 param/S
 parentChain
@@ -409,6 +428,8 @@ serverless
 setAcl
 setBlockMaster
 setIn
+setManifest
+setRootChainManifest
 setSelectedChain
 setState
 sharedProfile
@@ -447,6 +468,7 @@ trulyRandomAction
 trulyRandomInt
 ui
 ul
+updateIndexHtml/S
 updatedApplicationState
 uptime
 util/S
