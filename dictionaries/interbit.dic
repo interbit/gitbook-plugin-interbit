@@ -1,4 +1,4 @@
-451
+458
 1a
 1b
 ACL/S
@@ -20,6 +20,7 @@ Folderpath
 FormControl
 GitBook
 HIPAA
+ISO8601
 InteractiveChains
 Interbit
 InterbitCore
@@ -69,6 +70,7 @@ anonymization
 anonymize/D
 anotherAction
 api
+apiadoc
 appChain
 appState
 applicationState
@@ -76,6 +78,7 @@ applyMiddleware
 architect/DG
 aren
 askFlavour
+async
 auditability
 authorizeReceiveAction/S
 authorizeSendAction/S
@@ -181,6 +184,8 @@ crypto
 css
 customizability
 cwd
+dateSte
+datetime
 dbPath
 destroyAction
 destroyChain
@@ -206,6 +211,8 @@ eventOccurred
 facebookincubator
 fetchRandom
 filepath
+formatDate
+formatDateTime
 fromStoreRoot
 gKu
 generateKeyPair
