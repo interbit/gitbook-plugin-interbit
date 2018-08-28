@@ -1,6 +1,13 @@
 // helper functions to convert jsdoc items into Asciidoctor markup
-
+const wrap = require('word-wrap')
 var STYLE = 'list'
+
+const wrapConfig = {
+  width: 80,
+  indent: '',
+  trim: true,
+  cut: false
+}
 
 const rFunction = (item, mode = module.exports.STYLE) => {
   var output = ''
@@ -16,7 +23,7 @@ const rFunction = (item, mode = module.exports.STYLE) => {
     })
   }
   output += ")`\n\n"
-  output += `${item.description}` + "\n\n"
+  output += `${wrap(item.description, wrapConfig)}` + "\n\n"
 
   if ('params' in item && item.params.length) {
     output += "### Parameters\n\n"
@@ -106,7 +113,7 @@ const rParam = (param, mode = module.exports.STYLE, requiredCol = false, default
       process.exit(1)
     }
   }
-  var description = param.description || ''
+  var description = wrap(param.description || '', wrapConfig)
 
   const opt  = ('optional' in param && param.optional)
   const req  = ('required' in param && param.required)
@@ -171,7 +178,7 @@ const rReturns = (returns, mode = module.exports.STYLE) => {
       process.exit(1)
     }
   }
-  var description = returns.description || ''
+  var description = wrap(returns.description || '', wrapConfig)
 
   if (mode == 'table') {
     output += `| \{${type}\}` + "\n" + `| ${description}` + "\n\n";

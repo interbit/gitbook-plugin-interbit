@@ -23,7 +23,8 @@
     "minimist": "^1.2.0",
     "nspell": "^2.0.1",
     "promisify-any": "^2.0.1",
-    "walk-sync": "^0.3.2"
+    "walk-sync": "^0.3.2",
+    "word-wrap": "^1.2.3"
   },
   "engines": {
     "gitbook": ">=3.0.0"
