@@ -63,6 +63,14 @@ const keySkip = {
   'type':         true,
 }
 
+const labelSeparators = [
+  '--',
+  '--',
+  '====',
+  '=====',
+  '======'
+]
+
 const rParam = (param, mode = module.exports.STYLE) => {
   var output = ''
 
@@ -111,7 +119,7 @@ const rParam = (param, mode = module.exports.STYLE) => {
     output += `${ss}${name}${es}${ds}`
   }
   else {
-    output += `[.api.p]**${name}** [.api.t]**${type}**`
+    output += `[.api.p]\`${name}\` [.api.t]__${type}__`
     if (req) output += " [.api.r]**Required**"
     if (opt) output += " [.api.o]**Optional**"
     if (def) output += ` [.api.d]**Default=${param.defaultvalue}**`
@@ -120,12 +128,12 @@ const rParam = (param, mode = module.exports.STYLE) => {
     output += `${description}` + "\n"
 
     if ('subparams' in param && param.subparams.length) {
-      // emit subparams here
-      output += "+\n--\n[horizontal]\n"
+      var sep = labelSeparators[param.sublevel]
+      output += "+\n" + sep + "\n[horizontal]\n"
       param.subparams.forEach((sub) => {
         output += rParam(sub, 'list')
       })
-      output += "--\n"
+      output += sep + "\n"
     }
 
     output += "\n"
