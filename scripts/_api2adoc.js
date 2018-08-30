@@ -1,9 +1,11 @@
 // helper functions to convert jsdoc items into Asciidoctor markup
 const wrap = require('word-wrap')
+const debug = require('./_debug')
+
 var STYLE = 'list'
 
 const wrapConfig = {
-  width: 80,
+  width: 72,
   indent: '',
   trim: true,
   cut: false
@@ -12,67 +14,40 @@ const wrapConfig = {
 const rFunction = (item, mode = module.exports.STYLE) => {
   var output = ''
 
+  var params = ('params' in item) ? identifySubparams(item.params) : []
   var async = ('async' in item && item.async) ? 'async ' : ''
 
-  output += `## [.signature]\`${async}${item.name}(`
-  if (item.params.length) {
+  output += `## [.signature]__${async}${item.name}(`
+  if (params.length) {
     var sep = ''
-    item.params.forEach((param) => {
+    params.forEach((param) => {
       output += sep + rParam(param, 'short')
       sep = ', '
     })
   }
-  output += ")`\n\n"
-  output += `${wrap(item.description, wrapConfig)}` + "\n\n"
+  output += ")__\n\n"
+  output += `${wrapit(item.description)}` + "\n\n"
 
-  if ('params' in item && item.params.length) {
+  if (params.length) {
     output += "### Parameters\n\n"
 
-    if (mode == 'table') {
-      var requiredCol = false
-      var defaultCol = false
-      item.params.forEach((param) => {
-        if ('required' in param) requiredCol = true
-        if ('optional' in param) requiredCol = true
-        if ('defaultvalue' in param) defaultCol = true
-      })
-
-      var colCount = 3
-      if (requiredCol) colCount += 1
-      if (defaultCol) colCount += 1
-      var cols = repeat('1a', colCount, ',')
-
-      output += `[cols="${cols}", options="header"]` + "\n|===\n"
-      output += "| Name\n| Type\n"
-      if (requiredCol) output += "| Required/Optional\n"
-      if (defaultCol) output += "| Default\n"
-      output += "| Description\n\n"
+    if (mode != 'short') {
+      output += "[horizontal]\n"
     }
 
-    item.params.forEach((param) => {
-      output += rParam(param, mode, requiredCol, defaultCol)
+    // generate output for each parameter
+    params.forEach((param) => {
+      output += rParam(param, mode)
     })
-
-    if (mode == 'table') {
-      output += "|===\n\n"
-    }
   }
 
   if ('returns' in item && item.returns.length) {
     output += "### Returns\n\n"
 
-    if (module.exports.STYLE == 'table') {
-      output += `[cols="1a,1a,1a", options="header"]` + "\n|===\n"
-      output += "| Type\n| Description\n\n"
-    }
-
+    output += "[horizontal]\n"
     item.returns.forEach((returns) => {
       output += rReturns(returns)
     })
-
-    if (module.exports.STYLE == 'table') {
-      output += "|===\n\n"
-    }
   }
 
   return output
@@ -83,17 +58,21 @@ const keySkip = {
   'description':  true,
   'name':         true,
   'optional':     true,
+  'sublevel':     true,
+  'subparams':    true,
   'type':         true,
 }
 
-const rParam = (param, mode = module.exports.STYLE, requiredCol = false, defaultCol = false) => {
+const rParam = (param, mode = module.exports.STYLE) => {
   var output = ''
 
+  // This code understands a subset of jsdoc @param metadata. Complain
+  // when something new is encountered so we can upgrade as necessary.
   Object.keys(param).map((key) => {
     if (!(key in keySkip)) {
       console.log("Found unknown param key:", key)
     }
-  });
+  })
 
   const name = param.name
   var type = '_n/a_'
@@ -101,58 +80,55 @@ const rParam = (param, mode = module.exports.STYLE, requiredCol = false, default
   if (param.type !== undefined) {
     if (typeof param.type === 'object') {
       if ('names' in param.type) {
-        type = param.type.names.join(', ')
+        type = param.type.names.join(' | ')
       }
       else {
         console.log("Unknown parameter type:", param.type)
-        process.exit(1)
       }
     }
     else {
       console.log("Unknown parameter type:", param.type)
-      process.exit(1)
     }
   }
-  var description = wrap(param.description || '', wrapConfig)
+  var description = wrapit(param.description || '')
 
   const opt  = ('optional' in param && param.optional)
   const req  = ('required' in param && param.required)
   const def  = ('defaultvalue' in param)
-  var reqopt = ""
-  if (req) reqopt = "required"
-  if (opt) reqopt = "optional"
 
   if (mode == 'short') {
     var ss = es = ''
     if (req) {
-      ss = "[.required]**"
-      es = "**";
+      ss = "[.api.r]**"
+      es = "**"
     }
     if (opt) {
       ss = "<" + ss
       es += ">"
     }
 
-    var ds = (def) ? `=[.default]__${param.defaultvalue}__` : ''
+    var ds = (def) ? `=[.api.d]**${param.defaultvalue}**` : ''
     output += `${ss}${name}${es}${ds}`
   }
-  else if (mode == 'table') {
-    output += `| **${name}**` + "\n"
-    output += `| \{${type}\}` + "\n"
-    if (requiredCol) {
-      output += `| ${reqopt}` + "\n"
-    }
-    if (defaultCol) output += `| ${param.defaultvalue || ''}` + "\n"
-    output += `| ${description}` + "\n"
-    output += "\n";
-  }
   else {
-    description = description.replace(/\n\s*\n/g, "\s\+\n")
-    output += `* **${name}**`
-    if (reqopt.length) output += " +\n  " + `${reqopt}`
-    if (def) output += " +\n  " + `Default: ${param.defaultvalue || ''}`
-    if (reqopt.length || def) output += " +\n "
-    output += ` \{${type}\} +\n${description}` + "\n\n"
+    output += `[.api.p]**${name}** [.api.t]**${type}**`
+    if (req) output += " [.api.r]**Required**"
+    if (opt) output += " [.api.o]**Optional**"
+    if (def) output += ` [.api.d]**Default=${param.defaultvalue}**`
+    output += "::\n";
+
+    output += `${description}` + "\n"
+
+    if ('subparams' in param && param.subparams.length) {
+      // emit subparams here
+      output += "+\n--\n[horizontal]\n"
+      param.subparams.forEach((sub) => {
+        output += rParam(sub, 'list')
+      })
+      output += "--\n"
+    }
+
+    output += "\n"
   }
 
   return output
@@ -166,7 +142,7 @@ const rReturns = (returns, mode = module.exports.STYLE) => {
   if (returns.type !== undefined) {
     if (typeof returns.type === 'object') {
       if ('names' in returns.type) {
-        type = returns.type.names.join(', ')
+        type = returns.type.names.join(' | ')
       }
       else {
         console.log("Unknown return type:", returns.type)
@@ -178,15 +154,11 @@ const rReturns = (returns, mode = module.exports.STYLE) => {
       process.exit(1)
     }
   }
-  var description = wrap(returns.description || '', wrapConfig)
+  var description = wrapit(returns.description || '')
 
-  if (mode == 'table') {
-    output += `| \{${type}\}` + "\n" + `| ${description}` + "\n\n";
-  }
-  else {
-    description = description.replace(/\n\s*\n/g, "\s\+\n")
-    output += `* \{${type}\} +` + "\n" + `${description}` + "\n\n"
-  }
+  output += `[.api.t]**${type}**`
+  output += "::\n"
+  output += `${description}` + "\n\n"
 
   return output
 }
@@ -218,6 +190,56 @@ const repeat = (str, count, sep = ',') => {
   }
 
   return output
+}
+
+const wrapit = (text) => {
+  text = text.replace(/\n\s*/g, " ")
+  text = text.replace(/ \n/g, " +\n+\n")
+  return wrap(text, wrapConfig)
+}
+
+const identifySubparams = (params, level = 1) => {
+  debug.out(`identifySubparams start, level ${level}`)
+  // identify and organize any sub-parameters for objects
+  var parentParam = null
+  var hasSubs = false
+  params.forEach((param, i) => {
+    if (param.name) debug.out(`Evaling '${param.name}'`)
+    if (parentParam && parentParam.name && param.name) {
+      var bits = param.name.split('.')
+      if (bits.shift() == parentParam.name) {
+        debug.out(`Subparam found!`)
+        hasSubs = true
+        param.name = bits.join('.')
+        parentParam.subparams = parentParam.subparams || []
+        parentParam.subparams.push(param)
+        parentParam.sublevel = level
+        params[i] = null
+      }
+      else {
+        parentParam = param
+      }
+    }
+    else {
+      parentParam = param
+    }
+  })
+
+  if (hasSubs) {
+    params = params.filter(param => param)
+
+    debug.out(`Second pass start`)
+    params.forEach((param, i) => {
+      debug.out(`2nd evaling '${param.name}'`)
+      if ('subparams' in param) {
+        debug.out(`Recursive ident level for ${level + 1}`)
+        param.subparams = identifySubparams(param.subparams, level + 1)
+      }
+    })
+  }
+
+  debug.out(`identifySubparams end, level ${level}`)
+  return params
 }
 
 module.exports = {
