@@ -177,12 +177,22 @@ const wrapit = (text) => {
   return wrap(text, wrapConfig)
 }
 
+const typeMap = {
+  'bool': 'Boolean',
+  'int': 'Integer'
+}
+
 const getType = (param) => {
   var type = '_n/a_'
   if (param.type !== undefined) {
     if (typeof param.type === 'object') {
       if ('names' in param.type) {
-        type = capitalize.words(param.type.names.join(' | '))
+        var bits = []
+        param.type.names.forEach((name) => {
+          if (name in typeMap) name = typeMap[name]
+          bits.push(capitalize.words(name))
+        })
+        type = bits.join(' | ')
       }
       else {
         console.log("Unknown type:", param.type)
