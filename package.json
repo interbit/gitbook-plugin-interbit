@@ -17,6 +17,7 @@
   "dependencies": {
     "ansi-escape-sequences": "^4.0.0",
     "bluebird": "^3.5.1",
+    "capitalize": "^1.0.0",
     "fs-extra-promise": "^1.0.1",
     "image-size": "^0.6.3",
     "lodash": "^4.17.10",

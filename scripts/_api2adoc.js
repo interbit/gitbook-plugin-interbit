@@ -1,6 +1,7 @@
 // helper functions to convert jsdoc items into Asciidoctor markup
-const wrap = require('word-wrap')
-const debug = require('./_debug')
+const capitalize  = require('capitalize')
+const wrap        = require('word-wrap')
+const debug       = require('./_debug')
 
 var STYLE = 'list'
 
@@ -83,21 +84,7 @@ const rParam = (param, mode = module.exports.STYLE) => {
   })
 
   const name = param.name
-  var type = '_n/a_'
-
-  if (param.type !== undefined) {
-    if (typeof param.type === 'object') {
-      if ('names' in param.type) {
-        type = param.type.names.join(' | ')
-      }
-      else {
-        console.log("Unknown parameter type:", param.type)
-      }
-    }
-    else {
-      console.log("Unknown parameter type:", param.type)
-    }
-  }
+  var type = getType(param)
   var description = wrapit(param.description || '')
 
   const opt  = ('optional' in param && param.optional)
@@ -145,23 +132,7 @@ const rParam = (param, mode = module.exports.STYLE) => {
 const rReturns = (returns, mode = module.exports.STYLE) => {
   var output = ''
 
-  var type = '_n/a_'
-
-  if (returns.type !== undefined) {
-    if (typeof returns.type === 'object') {
-      if ('names' in returns.type) {
-        type = returns.type.names.join(' | ')
-      }
-      else {
-        console.log("Unknown return type:", returns.type)
-        process.exit(1)
-      }
-    }
-    else {
-      console.log("Unknown return type:", returns.type)
-      process.exit(1)
-    }
-  }
+  var type = getType(returns)
   var description = wrapit(returns.description || '')
 
   output += `[.api.t]**${type}**`
@@ -204,6 +175,25 @@ const wrapit = (text) => {
   text = text.replace(/\n\s*/g, " ")
   text = text.replace(/ \n/g, " +\n+\n")
   return wrap(text, wrapConfig)
+}
+
+const getType = (param) => {
+  var type = '_n/a_'
+  if (param.type !== undefined) {
+    if (typeof param.type === 'object') {
+      if ('names' in param.type) {
+        type = capitalize.words(param.type.names.join(' | '))
+      }
+      else {
+        console.log("Unknown type:", param.type)
+      }
+    }
+    else {
+      console.log("Unknown type:", param.type)
+    }
+  }
+
+  return type
 }
 
 const identifySubparams = (params, level = 1) => {
