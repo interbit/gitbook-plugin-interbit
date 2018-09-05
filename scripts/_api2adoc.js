@@ -18,7 +18,7 @@ const rFunction = (item, mode = module.exports.STYLE) => {
   var params = ('params' in item) ? identifySubparams(item.params) : []
   var async = ('async' in item && item.async) ? 'async ' : ''
 
-  output += `## [.signature]__${async}${item.name}(`
+  output += `== [.signature]__${async}${item.name}(`
   if (params.length) {
     var sep = ''
     params.forEach((param) => {
@@ -30,7 +30,7 @@ const rFunction = (item, mode = module.exports.STYLE) => {
   output += `${wrapit(item.description)}` + "\n\n"
 
   if (params.length) {
-    output += "### Parameters\n\n"
+    output += "=== Parameters\n\n"
 
     if (mode != 'short') {
       output += "[horizontal]\n"
@@ -43,7 +43,7 @@ const rFunction = (item, mode = module.exports.STYLE) => {
   }
 
   if ('returns' in item && item.returns.length) {
-    output += "### Returns\n\n"
+    output += "=== Returns\n\n"
 
     output += "[horizontal]\n"
     item.returns.forEach((returns) => {
