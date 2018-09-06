@@ -104,6 +104,12 @@ const scan = (lines) => {
     // skip titles, as these need to appear on one line
     if (line.match(/^(#|=)+ /)) return
 
+    // skip lines in generated API documentation that uses classes in
+    // labelled lists.
+    if (line.match(/^\[\.api\./)) {
+      return
+    }
+
     // skip Asciidoctor links and images; URLs can be quite long
     if (mg = line.match(/(link|image):[^\[]+\[/)) {
       var type = mg[1]
