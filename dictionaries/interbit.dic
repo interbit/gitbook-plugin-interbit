@@ -1,4 +1,4 @@
-480
+483
 1a
 1b
 ACL/S
@@ -43,6 +43,7 @@ QD
 README
 ReactDOM
 SDK
+SHA1
 TODO
 TZ
 UI
@@ -131,6 +132,7 @@ chainDispatch
 chainDispatchAction
 chainID
 chainId/S
+chainIdMap
 chainInterface
 chainManifest
 chainMetadata
@@ -169,6 +171,7 @@ covenantAlias
 covenantConfig
 covenantConfiguration
 covenantHash/S
+covenantHashMap
 covenantName
 covenantUtil/S
 createAction
