@@ -5,7 +5,7 @@ const path    = require('path')
 const ansi    = require('ansi-escape-sequences')
 const color   = ansi.style
 const debug   = require('../_debug')
-const pattern = new RegExp(/(\b\S+\b)\s+(\b\1\b(?!-))/, "g")
+const pattern = new RegExp(/(\b\S+\b)\s+(\b\1\b(?!-))/, "ig")
 
 // scan the lines in a file
 const scan = (lines) => {
@@ -29,14 +29,14 @@ const scan = (lines) => {
       debug.out(`Checking for line-spanning repeats:\n${line}`)
       var mg
       var last = ''
-      if (mg = line.match(/\s+(\S+)\s*$/)) last = mg[1]
+      if (mg = line.match(/\s+(\S+)\s*$/)) last = mg[1].toLowerCase()
       debug.out(`LW: ${last}`)
-      if (!last.match(/[A-Za-z0-9]/)) last = ''
+      if (!last.match(/[a-z0-9]/)) last = ''
 
       var first = ''
-      if (mg = lines[index + 1].match(/^\s*(\S+)/)) first = mg[1]
+      if (mg = lines[index + 1].match(/^\s*(\S+)/)) first = mg[1].toLowerCase()
       debug.out(`FW: ${first}`)
-      if (!first.match(/[A-Za-z0-9]/)) first = ''
+      if (!first.match(/[a-z0-9]/)) first = ''
 
       if (last.length && first.length && last == first) {
         debug.out(`Repeated word spanning lines found`)
