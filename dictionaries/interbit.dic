@@ -1,4 +1,4 @@
-486
+487
 1a
 1b
 ACL/S
@@ -348,6 +348,7 @@ myChain
 myPublicKey
 nComment
 nVersion
+namespace/S
 nbsp
 newState
 nextState
