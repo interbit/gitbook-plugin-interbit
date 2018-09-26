@@ -276,7 +276,7 @@ const identifySubparams = (params, level = 1) => {
 // supported items, mapping to the associated handling function
 // entries this object get written to separate Asciidoc files!
 const supported = {
-//  "constant": rConstant,
+  "constant": rConstant,
   "function": rFunction,
   "class": rClass,
 //  "param":    rParam,
