@@ -2,6 +2,7 @@
 const capitalize  = require('capitalize')
 const wrap        = require('word-wrap')
 const debug       = require('./_debug')
+const fs          = require('fs')
 
 var STYLE = 'list'
 
@@ -10,6 +11,34 @@ const wrapConfig = {
   indent: '',
   trim: true,
   cut: false
+}
+
+const rClass = (item, mode = module.exports.STYLE, exampleTxt = '') => {
+  var output = ''
+
+  output += `${wrapit(item.description || '')}` + "\n\n"
+
+  if (item.members.length) {
+    output += "=== Props\n\n"
+
+    if (mode != 'short') {
+      output += "[horizontal]\n"
+    }
+
+    // generate output for each member
+    item.members.forEach((member) => {
+      output += rParam(member, mode)
+    })
+  }
+
+  if (exampleTxt.length) {
+    output += "=== Example\n\n"
+    var bits = exampleTxt.split('[source')
+    output += wrapit(bits[0]) + "\n\n"
+    output += "[source" + bits[1]
+  }
+
+  return output
 }
 
 const rFunction = (item, mode = module.exports.STYLE) => {
@@ -151,14 +180,6 @@ const rConstant = (constant, mode = module.exports.STYLE) => {
   process.exit(1)
 }
 
-const supported = {
-  // support function items
-  "constant": rConstant,
-  "function": rFunction,
-  "param":    rParam,
-  "returns":  rReturns
-}
-
 const repeat = (str, count, sep = ',') => {
   var output = ''
 
@@ -179,7 +200,9 @@ const wrapit = (text) => {
 
 const typeMap = {
   'bool': 'Boolean',
-  'int': 'Integer'
+  'int': 'Integer',
+  'func': 'Function',
+  'Func': 'Function'
 }
 
 const getType = (param) => {
@@ -248,6 +271,16 @@ const identifySubparams = (params, level = 1) => {
 
   debug.out(`identifySubparams end, level ${level}`)
   return params
+}
+
+// supported items, mapping to the associated handling function
+// entries this object get written to separate Asciidoc files!
+const supported = {
+//  "constant": rConstant,
+  "function": rFunction,
+  "class": rClass,
+//  "param":    rParam,
+//  "returns":  rReturns
 }
 
 module.exports = {

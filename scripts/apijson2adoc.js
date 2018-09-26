@@ -23,6 +23,12 @@ if (!fs.existsSync(jsonFile)) {
   process.exit(1)
 }
 
+var componentDir = ''
+if ('c' in argv) componentDir = argv['c']
+if ('componentDir' in argv) componentDir = argv['componentDir']
+// can be empty, but if we encounter a class later, we'll complain if
+// componentDir is not set.
+
 var asciidocDir = ''
 if ('d' in argv) asciidocDir = argv['d']
 if ('asciidocdir' in argv) asciidocDir = argv['asciidocDir']
@@ -53,24 +59,101 @@ const api = JSON.parse(fs.readFileSync(jsonFile))
 
 a2a.STYLE = style
 
+// preprocess classes + members, because JSDoc doesn't do that for us.
+var classes = {}
+const itemPath = (item) =>
+  path.join(item.meta.path, item.meta.filename)
+const itemNamespace = (item) => {
+  var bits = item.meta.path.split(componentDir)
+  return bits.pop()
+}
+const itemClassname = (item) => path.basename(item.meta.filename, '.js')
+
+api.map((item) => {
+  // skip undocumented items
+  if ('undocumented' in item && item.undocumented == true) return
+
+  if (item.kind == "class") {
+    const ipath = itemPath(item)
+    classes[ipath] = item
+    debug.out(`Found class '${ipath}`)
+    return
+  }
+
+  if (item.kind == "member") {
+    const ipath = itemPath(item)
+    if (ipath in classes) {
+      if (!("members" in classes[ipath])) classes[ipath].members = []
+      var typeBits = item.meta.code.value.split('.')
+      var member = {
+        description: item.description,
+        name: item.name,
+        type: { names: [ typeBits[1] ] }
+      }
+      if (typeBits[2] && typeBits[2].length) member.required = true
+      classes[ipath].members.push(member)
+    }
+    else {
+      if (ipath.match(/\/components\//)) {
+        console.log(`Have member for ${ipath} but no class!`)
+      }
+    }
+  }
+})
+
 // process each API entry
 api.map((item) => {
   // skip undocumented items
   if ('undocumented' in item && item.undocumented == true) return
 
+  var componentExample = ''
+  if (item.kind == "class") {
+    // We need to be able to load component examples from the
+    // componentDir, so complain if it is not specified.
+    if (!componentDir.length) {
+      console.log("The componentDir must be specified!")
+      process.exit(1)
+    }
+
+    // Fetch "example" file.
+    const itemFilename = itemClassname(item) + ".md"
+    const itemPath = item.meta.path
+    var exampleFilename = path.join(itemPath, itemFilename)
+    var componentExample = "" + fs.readFileSync(exampleFilename)
+
+    // Convert it to Asciidoc markup.
+    componentExample = componentExample.replace(
+      /^```(j.+)\s*$/m,
+      (match, p1, offset, string) =>
+        `[source,${p1}]` + "\n----"
+    )
+    componentExample = componentExample.replace(/^```\s*$/m, "----\n")
+  }
+
+
   var output = ''
   if (item.kind in a2a.supported) {
     // collect the output for this item
-    output = a2a.supported[item.kind](item, style);
-    debug.out(item, output)
+    output = a2a.supported[item.kind](item, style, componentExample)
 
     // write the Asciidoc output into a location that can be included
     // within the docs.
     const outPath = path.join(asciidocDir, pkg)
     if (!fs.existsSync(outPath)) fs.mkdirSync(outPath)
-    const asciidocFilename = path.join(outPath, item.name + '.adoc')
-    fs.writeFileSync(asciidocFilename, output, { flag: 'wx' })
-    debug.out("Wrote:", asciidocFilename)
+    if (item.kind == "class") {
+      const componentPath = path.join(outPath, itemNamespace(item))
+      console.log(`Class componentPath='${componentPath}'`)
+      if (!fs.existsSync(componentPath)) fs.mkdirSync(componentPath)
+      const asciidocFilename = path.join(componentPath, itemClassname(item) + '.adoc')
+      console.log(`Class adoc filename: '${asciidocFilename}'`)
+      fs.writeFileSync(asciidocFilename, output, { flag: 'wx' })
+      debug.out("Wrote:", asciidocFilename)
+    }
+    else {
+      const asciidocFilename = path.join(outPath, item.name + '.adoc')
+      fs.writeFileSync(asciidocFilename, output, { flag: 'wx' })
+      debug.out("Wrote:", asciidocFilename)
+    }
   } else {
     debug.out(`Unsupported API item type: ${item.kind}`)
   }
