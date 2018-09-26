@@ -25,7 +25,8 @@ const setup = (folder) => {
       "**/*.js",
       "**/*.json",
       "**/*.jsx",
-      "apiadoc/**/*.adoc"
+      "apiadoc/**/*.adoc",
+      "apiadoc/**/**/*.adoc"
     ],
     ignore: [
       "_*", "node_modules", "vendor",
