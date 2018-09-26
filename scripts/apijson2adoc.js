@@ -142,10 +142,8 @@ api.map((item) => {
     if (!fs.existsSync(outPath)) fs.mkdirSync(outPath)
     if (item.kind == "class") {
       const componentPath = path.join(outPath, itemNamespace(item))
-      console.log(`Class componentPath='${componentPath}'`)
       if (!fs.existsSync(componentPath)) fs.mkdirSync(componentPath)
       const asciidocFilename = path.join(componentPath, itemClassname(item) + '.adoc')
-      console.log(`Class adoc filename: '${asciidocFilename}'`)
       fs.writeFileSync(asciidocFilename, output, { flag: 'wx' })
       debug.out("Wrote:", asciidocFilename)
     }
