@@ -1,4 +1,4 @@
-487
+494
 1a
 1b
 ACL/S
@@ -27,6 +27,7 @@ Interbit
 InterbitCore
 InterbitSDK
 Javascript
+LinkBar
 LinkedCovenant
 NEIGHBOURHOOD
 NPM
@@ -48,6 +49,7 @@ SHA1
 TODO
 TZ
 UI
+UIKit
 USD
 UUID
 accountPrivate
@@ -144,7 +146,9 @@ chainUpdate/D
 chaindetails
 childAlias
 childChain/S
+className
 cli
+clickHandler
 combineReducer/S
 commonActions
 componentDidMount
@@ -306,6 +310,7 @@ io
 isChainLoaded
 isCreator
 isDevModeEnabled
+isMailto
 isPublicChainLoaded
 isWatchModeEnabled
 jB
@@ -330,6 +335,7 @@ loadChain
 loadInterbitSaga
 localhost
 loweralpha
+mailto
 manifestFilePath
 manifestLocation
 manifestPeer/S
@@ -483,6 +489,7 @@ v2
 validateConfig
 validator/S
 ve
+viewport/S
 webpack
 whichBlockchain
 xg
