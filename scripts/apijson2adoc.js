@@ -97,7 +97,7 @@ const itemJSXPath = (item, index, type) => {
 
   return path.join(
     itemComponentPath(item),
-    itemClassname(item) + `-ex${index}.${type}`
+    itemClassname(item) + `-${index}.${type}`
   )
 }
 
