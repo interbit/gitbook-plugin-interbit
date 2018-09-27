@@ -19,7 +19,7 @@ const rClass = (item, mode = module.exports.STYLE, exampleTxt = '') => {
   output += `${wrapit(item.description || '')}` + "\n\n"
 
   if (item.members.length) {
-    output += "=== Props\n\n"
+    output += "== Props\n\n"
 
     if (mode != 'short') {
       output += "[horizontal]\n"
@@ -32,7 +32,7 @@ const rClass = (item, mode = module.exports.STYLE, exampleTxt = '') => {
   }
 
   if (exampleTxt.length) {
-    output += "=== Example\n\n"
+    output += "== Example\n\n"
     var bits = exampleTxt.split('[source')
     output += wrapit(bits[0]) + "\n\n"
     output += "[source" + bits[1]
