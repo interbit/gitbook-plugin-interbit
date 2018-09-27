@@ -23,11 +23,20 @@ if (!fs.existsSync(jsonFile)) {
   process.exit(1)
 }
 
+var style = 'table'
+if ('s' in argv) style = argv['s']
+if ('style' in argv) style = argv['style']
+
+const debug = require('./_debug')
+if ('v' in argv) debug.DEBUG = true
+if ('verbose' in argv) debug.DEBUG = true
+debug.PREFIX = 'AJ2AD'
+
+// can be empty, but if we encounter a class later, we'll complain if
+// componentDir is not set.
 var componentDir = ''
 if ('c' in argv) componentDir = argv['c']
 if ('componentDir' in argv) componentDir = argv['componentDir']
-// can be empty, but if we encounter a class later, we'll complain if
-// componentDir is not set.
 
 var asciidocDir = ''
 if ('d' in argv) asciidocDir = argv['d']
@@ -45,21 +54,16 @@ if (!pkg.length > 0) {
   process.exit(1)
 }
 
-var style = 'table'
-if ('s' in argv) style = argv['s']
-if ('style' in argv) style = argv['style']
+// prepare the output path
+const outPath = path.join(asciidocDir, pkg)
+if (!fs.existsSync(outPath)) fs.mkdirSync(outPath)
 
-const debug = require('./_debug')
-if ('v' in argv) debug.DEBUG = true
-if ('verbose' in argv) debug.DEBUG = true
-debug.PREFIX = 'AJ2AD'
-
-// read in the JSON file
+// read in the package's JSDoc-produced JSON file
 const api = JSON.parse(fs.readFileSync(jsonFile))
 
 a2a.STYLE = style
 
-// preprocess classes + members, because JSDoc doesn't do that for us.
+// A few helper functions for API items.
 var classes = {}
 const itemPath = (item) =>
   path.join(item.meta.path, item.meta.filename)
@@ -68,7 +72,36 @@ const itemNamespace = (item) => {
   return bits.pop()
 }
 const itemClassname = (item) => path.basename(item.meta.filename, '.js')
+const itemMDPath = (item) => {
+    const mdFile = itemClassname(item) + ".md"
+    return path.join(item.meta.path, mdFile)
+}
+const itemComponentPath = (item) => {
+  const componentPath = path.join(outPath, itemNamespace(item))
+  if (!fs.existsSync(componentPath)) fs.mkdirSync(componentPath)
+  return componentPath
+}
+const itemADOCPath = (item) => {
+  if (item.kind == "class") {
+    return path.join(itemComponentPath(item), itemClassname(item) + '.adoc')
+  }
+  else {
+    return path.join(outPath, item.name + '.adoc')
+  }
+}
+const itemJSXPath = (item, index, type) => {
+  if (item.kind != "class") {
+    console.log("There cannot be a JSX path for a non-class!")
+    process.exit(1)
+  }
 
+  return path.join(
+    itemComponentPath(item),
+    itemClassname(item) + `-ex${index}.${type}`
+  )
+}
+
+// preprocess classes + members, because JSDoc doesn't do that for us.
 api.map((item) => {
   // skip undocumented items
   if ('undocumented' in item && item.undocumented == true) return
@@ -116,20 +149,26 @@ api.map((item) => {
     }
 
     // Fetch "example" file.
-    const itemFilename = itemClassname(item) + ".md"
-    const itemPath = item.meta.path
-    var exampleFilename = path.join(itemPath, itemFilename)
-    var componentExample = "" + fs.readFileSync(exampleFilename)
+    var example = "" + fs.readFileSync(itemMDPath(item))
 
-    // Convert it to Asciidoc markup.
-    componentExample = componentExample.replace(
-      /^```(j.+)\s*$/m,
-      (match, p1, offset, string) =>
-        `[source,${p1}]` + "\n----"
+    // split out the JS/JSX/Javascript example code into an include-able
+    // file so that we're not spell-checking JSX.
+    var counter = 0;
+    example = example.replace(
+      /```(j[^\s\n]+)\n([^`]+)```/,
+      (match, p1, p2, offset, string) => {
+        var exFile = itemJSXPath(item, ++counter, p1)
+        fs.writeFileSync(exFile, p2, { flag: 'wx' })
+        debug.out(`Wrote example: ${exFile}`)
+
+        return `[source,${p1}]`
+          + "\n----\n"
+          + `\{% include "/${exFile}" %\}`
+          + "\n----\n"
+      }
     )
-    componentExample = componentExample.replace(/^```\s*$/m, "----\n")
+    componentExample = example
   }
-
 
   var output = ''
   if (item.kind in a2a.supported) {
@@ -138,20 +177,9 @@ api.map((item) => {
 
     // write the Asciidoc output into a location that can be included
     // within the docs.
-    const outPath = path.join(asciidocDir, pkg)
-    if (!fs.existsSync(outPath)) fs.mkdirSync(outPath)
-    if (item.kind == "class") {
-      const componentPath = path.join(outPath, itemNamespace(item))
-      if (!fs.existsSync(componentPath)) fs.mkdirSync(componentPath)
-      const asciidocFilename = path.join(componentPath, itemClassname(item) + '.adoc')
-      fs.writeFileSync(asciidocFilename, output, { flag: 'wx' })
-      debug.out("Wrote:", asciidocFilename)
-    }
-    else {
-      const asciidocFilename = path.join(outPath, item.name + '.adoc')
-      fs.writeFileSync(asciidocFilename, output, { flag: 'wx' })
-      debug.out("Wrote:", asciidocFilename)
-    }
+    const asciidocFilename = itemADOCPath(item)
+    fs.writeFileSync(asciidocFilename, output, { flag: 'wx' })
+    debug.out("Wrote:", asciidocFilename)
   } else {
     debug.out(`Unsupported API item type: ${item.kind}`)
   }
