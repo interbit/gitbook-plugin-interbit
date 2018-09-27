@@ -88,6 +88,7 @@ const keySkip = {
   'description':  true,
   'name':         true,
   'optional':     true,
+  'required':     true,
   'sublevel':     true,
   'subparams':    true,
   'type':         true,
