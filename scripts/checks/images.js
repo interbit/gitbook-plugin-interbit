@@ -98,6 +98,11 @@ const scan = (lines, docFile) => {
       }
     }
 
+    if (filename.match(/^(ht|f)tps?:\/\//)) {
+      debug.out("Skipping external link...")
+      return
+    }
+
     debug.out(`Found image: ${filename}, ${width} x ${height}`)
 
     // compute the referenced image's path
