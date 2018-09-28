@@ -61,6 +61,14 @@ const debug = require('./_debug')
 if ('v' in argv) debug.DEBUG = true
 if ('verbose' in argv) debug.DEBUG = true
 
+const skip = {}
+const addToSkip = (item) => {
+  if (!item.match(/\.js$/)) item += ".js"
+  skip[item] = true
+}
+if ('s' in argv) argv['s'].split(',').map((item) => { addToSkip(item) })
+if ('skip' in argv) argv['skip'].split(',').map((item) => { addToSkip(item) })
+
 // assume success
 var problems = false
 
@@ -81,6 +89,11 @@ Object.keys(checks).map((check) => {
   if (chk != 'ALL') {
     var re = RegExp(chk + '\(\.js\)\?');
     if (!check.match(re)) return
+  }
+
+  if (check in skip) {
+    print(`Skipping ${checks[check].name} check...`)
+    return
   }
 
   var results = {}
