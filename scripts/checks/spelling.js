@@ -55,7 +55,7 @@ const scan = (lines) => {
     // don't check URLs
     var line = aline.replace(/(ht|f)tps?:\/\/[^ )]+/, '')
     line.split(/[”“’— -\/:-@[-`{-~]+/).map((word) => {
-      if (!word || word.match(/^([0-9]+|\s*)?$/)) return
+      if (!word || word.match(/^([0-9]+h?|[£A-Za-z][0-9]+|\s*)?$/)) return
       if (!spellEnglish.correct(word)) {
         if (!spellInterbit.correct(word)) {
           debug.out(`'${word}' is misspelled`)
