@@ -11,6 +11,16 @@ const debug   = require('../_debug')
 const dictPath = path.join(__dirname, '..', '..', 'dictionaries')
 // prepare the spell contexts
 var dictionaries = {
+  "btl": {
+    "aff":  fs.readFileSync(
+              path.join(process.cwd(), '_bin', 'btl.aff'),
+              { encoding: 'utf8' }
+            ),
+    "dic":  fs.readFileSync(
+              path.join(process.cwd(), '_bin', 'btl.dic'),
+              { encoding: 'utf8' }
+            )
+  },
   "interbit": {
     "aff":  fs.readFileSync(
               path.join(dictPath, 'interbit.aff'),
@@ -44,6 +54,7 @@ const scan = (lines) => {
   var results = {}
   var counter = 0
   var spellInterbit = nspell(dictionaries["interbit"])
+  var spellInterbit = nspell(dictionaries["btl"])
   var spellEnglish  = nspell(dictionaries["english"])
 
   debug.PREFIX = 'RW'
