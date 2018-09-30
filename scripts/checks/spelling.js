@@ -44,7 +44,6 @@ const scan = (lines) => {
   var results = {}
   var counter = 0
   var spellInterbit = nspell(dictionaries["interbit"])
-  var spellInterbit = nspell(dictionaries["btl"])
   var spellEnglish  = nspell(dictionaries["english"])
 
   debug.PREFIX = 'RW'
