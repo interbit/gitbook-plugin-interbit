@@ -11,16 +11,6 @@ const debug   = require('../_debug')
 const dictPath = path.join(__dirname, '..', '..', 'dictionaries')
 // prepare the spell contexts
 var dictionaries = {
-  "btl": {
-    "aff":  fs.readFileSync(
-              path.join(process.cwd(), '_bin', 'btl.aff'),
-              { encoding: 'utf8' }
-            ),
-    "dic":  fs.readFileSync(
-              path.join(process.cwd(), '_bin', 'btl.dic'),
-              { encoding: 'utf8' }
-            )
-  },
   "interbit": {
     "aff":  fs.readFileSync(
               path.join(dictPath, 'interbit.aff'),
