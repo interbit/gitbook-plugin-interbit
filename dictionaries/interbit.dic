@@ -1,4 +1,4 @@
-517
+518
 1a
 1b
 ACL/S
@@ -487,6 +487,7 @@ staticChain/S
 stopHyperBlocker
 stringify/S
 styleguide
+styleguidist
 sudo
 svg
 templateControl
