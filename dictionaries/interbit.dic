@@ -1,4 +1,4 @@
-515
+516
 1a
 1b
 ACL/S
@@ -370,6 +370,7 @@ myPublicKey
 navItems
 nComment
 nVersion
+namespace/S
 nbsp
 newState
 nextState
@@ -509,7 +510,7 @@ v2
 validateConfig
 validator/S
 ve
-viewport
+viewport/S
 webpack
 whichBlockchain
 xg

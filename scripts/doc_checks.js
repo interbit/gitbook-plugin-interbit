@@ -61,6 +61,18 @@ const debug = require('./_debug')
 if ('v' in argv) debug.DEBUG = true
 if ('verbose' in argv) debug.DEBUG = true
 
+var external = false
+if ('x' in argv) external = true
+if ('external' in argv) external = true
+
+var skip = {}
+const addToSkip = (item) => {
+  if (!item.match(/\.js$/)) item += ".js"
+  skip[item] = true
+}
+if ('s' in argv) argv['s'].split(',').map((item) => { addToSkip(item) })
+if ('skip' in argv) argv['skip'].split(',').map((item) => { addToSkip(item) })
+
 // assume success
 var problems = false
 
@@ -79,8 +91,13 @@ const files = walk(docPath, {
 // run all of the checks
 Object.keys(checks).map((check) => {
   if (chk != 'ALL') {
-    var re = RegExp(chk + '\(\.js\)\?');
+    var re = RegExp(chk + '\(\.js\)\?')
     if (!check.match(re)) return
+  }
+
+  if (check in skip) {
+    print(`Skipping ${checks[check].name} check...`)
+    return
   }
 
   var results = {}
@@ -104,14 +121,14 @@ Object.keys(checks).map((check) => {
       .split(/\r?\n/)
 
     // scan the lines with the current check
-    var result = checks[check].scan(lines, path)
+    var result = checks[check].scan(lines, path, external)
     if (result.length) {
       results[path] = result
       problems = true
     }
   })
 
-  var always = false;
+  var always = false
   if (checks[check].emit
     && typeof checks[check].emit === "function") {
     debug.out(`Asking check ${check} whether to emit...`)

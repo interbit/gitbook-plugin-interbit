@@ -10,14 +10,18 @@ var proofed = false
 var results  = []
 
 // scan the lines in a file, but we just return the output
-const scan = (lines) => {
+const scan = (lines, docFile, external = false) => {
   if (proofed) return results
+
+  const command = (external)
+    ? "htmlproofer --allow-hash-href _book"
+    : "htmlproofer --allow-hash-href --disable-external _book"
 
   console.log('')
   // using "inherit" causes HTMLProofer output to be displayed "live"
   // so no need to capture it here.
   try {
-    exec("htmlproofer --allow-hash-href _book", {
+    exec(command, {
       cwd: process.cwd(),
       stdio: "inherit"
     })

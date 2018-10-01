@@ -26,7 +26,7 @@ const setup = (folder) => {
       "**/*.png",
       "**/*.svg"
     ],
-    ignore: [ "_*", "node_modules", "vendor" ]
+    ignore: [ "_book", "_interbit", "node_modules", "vendor" ]
   }).map((imgFile) => {
     images[imgFile] = false
   })
@@ -96,6 +96,11 @@ const scan = (lines, docFile) => {
         console.log(`Malformed MD image at line ${index}: ${line}`)
         process.exit(1)
       }
+    }
+
+    if (filename.match(/^(ht|f)tps?:\/\//)) {
+      debug.out("Skipping external link...")
+      return
     }
 
     debug.out(`Found image: ${filename}, ${width} x ${height}`)
