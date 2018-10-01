@@ -25,6 +25,7 @@ const setup = (folder) => {
       "**/*.js",
       "**/*.json",
       "**/*.jsx",
+      "**/*.markdown",
       "apiadoc/**/*.adoc",
       "apiadoc/**/**/*.adoc"
     ],
