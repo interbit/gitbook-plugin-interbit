@@ -3,34 +3,59 @@
 // check spelling
 const fs      = require('fs')
 const path    = require('path')
+const merge   = require('deepmerge')
+const ovMerge = (destinationArray, sourceArray, options) => sourceArray
 const nspell  = require('nspell')
 const ansi    = require('ansi-escape-sequences')
 const color   = ansi.style
 const debug   = require('../_debug')
 
-const dictPath = path.join(__dirname, '..', '..', 'dictionaries')
-// prepare the spell contexts
-var dictionaries = {
-  "interbit": {
-    "aff":  fs.readFileSync(
-              path.join(dictPath, 'interbit.aff'),
-              { encoding: 'utf8' }
-            ),
-    "dic":  fs.readFileSync(
-              path.join(dictPath, 'interbit.dic'),
-              { encoding: 'utf8' }
-            )
+var config  = {
+  "spelling.js": {
+    dictionaries: ["interbit", "english"]
   },
-  "english": {
-    "aff":  fs.readFileSync(
-              path.join(dictPath, 'en_US-large.aff'),
-              { encoding: 'utf8' }
-            ),
-    "dic":  fs.readFileSync(
-              path.join(dictPath, 'en_US-large.dic'),
-              { encoding: 'utf8' }
-            )
+  known: {
+    interbit: "interbit",
+    english:  "en_US-large"
   }
+}
+var dictionaries = []
+
+// setup
+const setup = (myConfig) => {
+  config = merge(config, myConfig, { arrayMerge: ovMerge })
+  const conf = config["spelling.js"]
+
+  const dictPath = path.join(__dirname, '..', '..', 'dictionaries')
+
+  dictionaries = conf.dictionaries.map((dict) => {
+    var name = dict
+    var dpath = dictPath
+
+    if (name in config.known) {
+      name = config.known[name]
+    }
+    else {
+      // treat entry as a full path
+      name = path.basename(dict)
+      dpath = path.dirname(dict)
+    }
+
+    debug.out(`Reading dictionary ${name} from ${dpath}`)
+    const affix = fs.readFileSync(
+      path.join(dpath, `${name}.aff`),
+      { encoding: 'utf8' }
+    )
+    const words = fs.readFileSync(
+      path.join(dpath, `${name}.dic`),
+      { encoding: 'utf8' }
+    )
+
+    return nspell({
+      "aff": affix,
+      "dic": words
+    })
+  })
 }
 
 // create a string left-padded with spaces to match the specified length
@@ -43,26 +68,31 @@ function pad (str, chars) {
 const scan = (lines) => {
   var results = {}
   var counter = 0
-  var spellInterbit = nspell(dictionaries["interbit"])
-  var spellEnglish  = nspell(dictionaries["english"])
 
-  debug.PREFIX = 'RW'
+  debug.PREFIX = 'SPL'
 
   lines.forEach((aline) => {
     counter++
 
-    debug.out(`${counter}: ${aline}`)
     // don't check URLs
     var line = aline.replace(/(ht|f)tps?:\/\/[^ )]+/, '')
     line.split(/[”“’— -\/:-@[-`{-~]+/).map((word) => {
       if (!word || word.match(/^([0-9]+h?|[£A-Za-z][0-9]+|\s*)?$/)) return
-      if (!spellEnglish.correct(word)) {
-        if (!spellInterbit.correct(word)) {
-          debug.out(`'${word}' is misspelled`)
-          if (!(word in results)) results[word] = {}
-          if (!(counter in results[word])) results[word][counter] = 0
-          results[word][counter]++
+
+      var correct = false
+      for (var i = dictionaries.length; i > 0; i--) {
+        var dict = dictionaries[i - 1]
+        if (dict.correct(word)) {
+          correct = true
+          break
         }
+      }
+
+      if (!correct) {
+        debug.out(`'${word}' is misspelled`)
+        if (!(word in results)) results[word] = {}
+        if (!(counter in results[word])) results[word][counter] = 0
+        results[word][counter]++
       }
     })
   })
@@ -156,4 +186,4 @@ if (require.main === module) {
   report( results )
 }
 
-module.exports = { name: "Spelling", scan, report }
+module.exports = { name: "Spelling", scan, report, setup }

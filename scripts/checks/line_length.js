@@ -2,12 +2,25 @@
 
 // check for line length; long lines makes for awkward diffs
 const path    = require('path')
+const merge   = require('deepmerge')
+const ovMerge = (destinationArray, sourceArray, options) => sourceArray
 const ansi    = require('ansi-escape-sequences')
 const color   = ansi.style
 const debug   = require('../_debug')
 const pattern = new RegExp(/(\b\S+\b)\s+(\b\1\b(?!-))/, "g")
 
-const maxLength = 80
+var config = {
+  "line_length.js": {
+    maxLength: 80
+  }
+}
+var maxLength = config["line_length.js"].maxLength
+
+// setup
+const setup = (myConfig) => {
+  config = merge(config, myConfig, { arrayMerge: ovMerge })
+  maxLength = config["line_length.js"].maxLength
+}
 
 // scan the lines in a file
 const scan = (lines) => {
@@ -168,7 +181,7 @@ const report = (results) => {
   })
   if (count) {
     console.log('')
-    console.log("Wrap the identified lines to fit within 80 columns.")
+    console.log(`Wrap the identified lines to fit within ${maxLength} columns.`)
   }
 }
 
@@ -191,4 +204,4 @@ if (require.main === module) {
   report( results )
 }
 
-module.exports = { name: "Line Lengths", scan, report }
+module.exports = { name: "Line Lengths", scan, report, setup }
