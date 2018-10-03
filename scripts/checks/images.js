@@ -2,22 +2,16 @@
 
 // check for missed images, or images with incorrect sizes
 const path    = require('path')
+const merge   = require('deepmerge')
+const ovMerge = (destinationArray, sourceArray, options) => sourceArray
 const ansi    = require('ansi-escape-sequences')
 const color   = ansi.style
 const walk    = require('walk-sync')
 const debug   = require('../_debug')
 const sizeOf  = require('image-size')
 
-var images        = {}
-var docPath       = ''
-var unreferenced  = false
-
-// scan doc source tree for images
-const setup = (folder) => {
-  debug.PREFIX = "IMG"
-  debug.out(`Scanning ${folder} for images...`)
-  docPath = folder
-  walk(folder, {
+var config        = {
+  "images.js": {
     directories: false,
     globs: [
       "**/*.gif",
@@ -27,9 +21,24 @@ const setup = (folder) => {
       "**/*.svg"
     ],
     ignore: [ "_book", "_interbit", "node_modules", "vendor" ]
-  }).map((imgFile) => {
+  }
+}
+var images        = {}
+var docPath       = ''
+var unreferenced  = false
+
+// scan doc source tree for images
+const setup = (myConfig) => {
+  config = merge(config, myConfig, { arrayMerge: ovMerge })
+  docPath = config.docPath
+
+  debug.PREFIX = "IMG"
+  debug.out(`Scanning ${docPath} for images...`)
+
+  walk(docPath, config["images.js"]).map((imgFile) => {
     images[imgFile] = false
   })
+
   debug.out(`Scanning complete, found:`)
   Object.keys(images).map((imgFile) => {
     debug.out(`Found: --${imgFile}==`)

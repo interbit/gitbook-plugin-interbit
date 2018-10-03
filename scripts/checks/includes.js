@@ -2,22 +2,16 @@
 
 // check for missed includes
 const path    = require('path')
-const ansi    = require('ansi-escape-sequences')
-const color   = ansi.style
+const merge   = require('deepmerge')
+const ovMerge = (destinationArray, sourceArray, options) => sourceArray
 const walk    = require('walk-sync')
 const debug   = require('../_debug')
 const sizeOf  = require('image-size')
+const ansi    = require('ansi-escape-sequences')
+const color   = ansi.style
 
-var includes      = {}
-var docPath       = ''
-var unreferenced  = false
-
-// scan doc source tree for includes
-const setup = (folder) => {
-  debug.PREFIX = "INC"
-  debug.out(`Scanning ${folder} for includes...`)
-  docPath = folder
-  walk(folder, {
+var config        = {
+  "includes.js": {
     directories: false,
     globs: [
       "**/*.css",
@@ -35,9 +29,25 @@ const setup = (folder) => {
       "package.json", "package-lock.json",
       "app.json", "book.json"
     ]
-  }).map((incFile) => {
+  }
+}
+
+var includes      = {}
+var docPath       = ''
+var unreferenced  = false
+
+// scan doc source tree for includes
+const setup = (myConfig) => {
+  config = merge(config, myConfig, { arrayMerge: ovMerge })
+  docPath = config.docPath
+
+  debug.PREFIX = "INC"
+  debug.out(`Scanning ${docPath} for includes...`)
+
+  walk(docPath, config["includes.js"]).map((incFile) => {
     includes[incFile] = false
   })
+
   debug.out(`Scanning complete, found:`)
   Object.keys(includes).map((incFile) => {
     debug.out(`Found: --${incFile}==`)
