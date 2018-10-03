@@ -68,6 +68,7 @@ function pad (str, chars) {
 const scan = (lines) => {
   var results = {}
   var counter = 0
+  var mg
 
   debug.PREFIX = 'SPL'
 
@@ -77,8 +78,11 @@ const scan = (lines) => {
     // don't check URLs
     var line = aline.replace(/(ht|f)tps?:\/\/[^ )]+/, '')
     line.split(/[”“’— -\/:-@[-`{-~]+/).map((word) => {
-      if (!word || word.match(/^([0-9]+h?|[£A-Za-z][0-9]+|\s*)?$/)) return
-
+      if (!word) return
+      if (word.match(/^\s*$/)) return
+      if (mg = word.match(/^([0-9½]+)?([A-za-z£]*)([0-9½]+)?$/)) {
+        word = mg[2]
+      }
       var correct = false
       for (var i = dictionaries.length; i > 0; i--) {
         var dict = dictionaries[i - 1]
@@ -105,6 +109,7 @@ const report = (results) => {
   // gather global results
   var words = {}
   var files = {}
+  var instances = 0
 
   Object.keys(results).map((file) => {
     var hash = results[file][0]
@@ -119,6 +124,7 @@ const report = (results) => {
       if (!(word in words)) words[word] = {}
       if (!(file in words[word])) words[word][file] = 0
       words[word][file] += subtotal
+      instances += subtotal
 
 
       if (!(file in files)) files[file] = {}
@@ -128,7 +134,7 @@ const report = (results) => {
   })
 
   const wordCount = Object.keys(words).length
-  console.log(`${color.red}${color.bold}${wordCount} misspelled words found!${color.reset}`)
+  console.log(`${color.red}${color.bold}${wordCount} misspelled words (${instances} instances) found!${color.reset}`)
 
   // find max word length
   var maxw = 0
