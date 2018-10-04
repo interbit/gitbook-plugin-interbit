@@ -168,7 +168,7 @@ Object.keys(checks).map((check) => {
   }
 
   if (check in config.checksToSkip) {
-    print(`Skipping ${checks[check].name} check...`)
+    print(`Skipping ${checks[check].name} check...\n`)
     return
   }
 
