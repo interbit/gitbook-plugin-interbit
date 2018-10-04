@@ -78,11 +78,12 @@ const scan = (lines) => {
     // don't check URLs
     var line = aline.replace(/(ht|f)tps?:\/\/[^ )]+/, '')
     line.split(/[”“’— -\/:-@[-`{-~]+/).map((word) => {
-      if (!word) return
-      if (word.match(/^\s*$/)) return
+      if (!word || !word.length) return
       if (mg = word.match(/^([0-9½]+)?([A-za-z£]*)([0-9½]+)?$/)) {
         word = mg[2]
       }
+      if (word.match(/^\s*$/)) return
+
       var correct = false
       for (var i = dictionaries.length; i > 0; i--) {
         var dict = dictionaries[i - 1]
