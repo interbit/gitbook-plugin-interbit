@@ -84,9 +84,6 @@ var config = {
   }
 }
 
-if ('v' in argv) config.debug = true
-if ('verbose' in argv) config.debug = true
-
 // merge in JSON config, if it exists
 if (fs.existsSync(configFile)) {
   try {
@@ -98,6 +95,10 @@ if (fs.existsSync(configFile)) {
     process.exit(1)
   }
 }
+
+if ('v' in argv) debug.DEBUG = config.debug = true
+if ('verbose' in argv) debug.DEBUG = config.debug = true
+
 debug.DEBUG = config.debug
 
 // process arguments
@@ -123,6 +124,10 @@ const addToSkip = (item) => {
 }
 if ('s' in argv) argv['s'].split(',').map((item) => { addToSkip(item) })
 if ('skip' in argv) argv['skip'].split(',').map((item) => { addToSkip(item) })
+
+var timing = false
+if ('t' in argv) timing = true
+if ('timing' in argv) timing = true
 
 debug.out("Initial configuration:", config)
 
@@ -175,6 +180,7 @@ Object.keys(checks).map((check) => {
   var results = {}
   debug.PREFIX = 'DC'
   print(`Checking for ${color.bold}${checks[check].name}${color.reset}...`)
+  const startTime = Date.now()
   if (checks[check].setup
     && typeof checks[check].setup === "function") {
     debug.out(`Running setup for ${check}`)
@@ -199,6 +205,8 @@ Object.keys(checks).map((check) => {
       problems = true
     }
   })
+  const endTime = Date.now()
+  const duration = (endTime - startTime)
 
   var always = false
   if (checks[check].emit
@@ -215,6 +223,12 @@ Object.keys(checks).map((check) => {
   }
   else {
     print(` ${color.green}OK!${color.reset}\n`)
+  }
+  if (timing) {
+    const elapsed = (duration < 1000)
+      ? (duration.toFixed(0)) + 'ms'
+      : (duration / 1000).toFixed(2) + 's'
+    print(`Elapsed: ${color.cyan}${elapsed}${color.reset}\n`)
   }
 })
 
