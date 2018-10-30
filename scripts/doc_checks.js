@@ -116,7 +116,7 @@ if (!fs.statSync(config.docPath).isDirectory()) {
 }
 
 if ('c' in argv) config.checkToRun = argv['c']
-if ('check' in argv) checkToRun = argv['check']
+if ('check' in argv) config.checkToRun = argv['check']
 
 const addToSkip = (item) => {
   if (!item.match(/\.js$/)) item += ".js"
@@ -128,6 +128,15 @@ if ('skip' in argv) argv['skip'].split(',').map((item) => { addToSkip(item) })
 var timing = false
 if ('t' in argv) timing = true
 if ('timing' in argv) timing = true
+
+// when we ask to run a specific check, do not skip it.
+if (config.checkToRun.length) {
+  if (config.checkToRun in config.checksToSkip
+    || (config.checkToRun + ".js") in config.checksToSkip) {
+    delete config.checksToSkip[config.checkToRun]
+    delete config.checksToSkip[config.checkToRun + ".js"]
+  }
+}
 
 debug.out("Initial configuration:", config)
 
