@@ -1,4 +1,4 @@
-518
+539
 1a
 1b
 ACL/S
@@ -65,6 +65,7 @@ accountPrivate
 accountsPrivate
 acl
 actionCreators
+actionList
 actionPermission/S
 actionPoolLength
 actionTypes
@@ -263,6 +264,8 @@ getChainIdByAlias
 getChainJoin/S
 getChainState
 getChainValidator/S
+getChannelUpdate
+getChannelUpdates
 getConfig
 getConfigFromStaticHtml
 getConfiguredChains
@@ -279,8 +282,12 @@ getIn
 getInterbitStatus
 getJoinTypeForChain
 getKey/S
+getLastBlock
 getManifest
+getPath
+getPathMutable
 getPeer/S
+getPool
 getPrivateChain
 getPrivateChainId
 getPublicChain
@@ -289,6 +296,8 @@ getPublicKey
 getRootChildren
 getSponsorConfig
 getState
+getStateMutable
+getUserUpdate
 ghi
 gif
 github
@@ -330,7 +339,9 @@ isWatchModeEnabled
 jB
 joinChain/S
 joinName
+joinProvideAs
 joinType/S
+joinWriteAs
 jointype/S
 js
 json
@@ -417,6 +428,7 @@ privateCovenant
 privateKey
 prng
 programmatically
+promiseId
 propTypes
 provideAction
 provideStateAction
@@ -430,6 +442,7 @@ pushUpRedispatches
 randomAction
 randomInt
 reactjs
+readJoinAlias
 receiveActionFrom
 receiveActionsFrom
 receiverChainId
@@ -445,8 +458,12 @@ replaceAcl
 repo
 requireable
 resetForm
+respondAs
 rootKey
 rootSaga
+runAllToCompletion
+runAllToCompletionOnChannel
+runToCompletion
 runtime
 sagaMiddleware
 scss
@@ -456,6 +473,7 @@ sendActionTo
 sendActionsTo
 sendChainToSponsor
 senderChainId
+sentCallback
 serverless
 setAcl
 setBlockMaster
@@ -483,11 +501,13 @@ startInterbit
 startProvideState
 stateHash
 statePath
+stateSlice
 staticChain/S
 stopHyperBlocker
 stringify/S
 styleguide
 styleguidist
+subscribeFunction
 sudo
 svg
 templateControl
@@ -513,6 +533,7 @@ validateConfig
 validator/S
 ve
 viewport/S
+waitForPool
 webpack
 whichBlockchain
 xg
