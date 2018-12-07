@@ -55,6 +55,7 @@ var config = {
   "includes.js": {
     directories: false,
     globs: [
+      "**/*.ad",
       "**/*.css",
       "**/*.html",
       "**/*.js",
