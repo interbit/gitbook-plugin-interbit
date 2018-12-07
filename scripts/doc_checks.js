@@ -79,7 +79,7 @@ var config = {
     folder: "_book",
     walk: {
       directories: false,
-      globs: [ "**/*.md", "**/*.adoc" ],
+      globs: [ "*/*.md", "*/**/*.md", "**/*.adoc" ],
       ignore: [ "node_modules", "vendor" ]
     }
   }
