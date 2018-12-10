@@ -230,6 +230,7 @@ Object.keys(checks).map((check) => {
     print(` ${color.red}Error(s)!${color.reset}\n`)
     checks[check].report(results)
     print(`\n`)
+    problems = true
   }
   else {
     print(` ${color.green}OK!${color.reset}\n`)
